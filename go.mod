@@ -3,7 +3,8 @@ module github.com/fyk7/go-fiber-tutorial
 go 1.16
 
 require (
-	github.com/gofiber/fiber/v2 v2.5.0 // indirect
+	github.com/gofiber/fiber/v2 v2.5.0
+	github.com/gofiber/websocket/v2 v2.0.2 // indirect
 	github.com/klauspost/compress v1.11.12 // indirect
 	github.com/valyala/fasthttp v1.22.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
