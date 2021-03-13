@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/fyk7/go-fiber-tutorial/book"
+	"github.com/fyk7/go-fiber-tutorial/database"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/websocket/v2"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
 type User struct {
@@ -34,8 +38,29 @@ func getJson(c *fiber.Ctx) error {
 	})
 }
 
+func setupRoutes(app *fiber.App) {
+	app.Get("/api/v1/book", book.GetBooks)
+	app.Get("/api/v1/book/:id", book.GetBook)
+	app.Post("/api/v1/book", book.NewBook)
+	app.Delete("/api/v1/book/:id", book.DeleteBook)
+}
+
+func initDatabase() {
+	var err error
+	database.DBConn, err = gorm.Open("sqlite3", "books.db")
+	if err != nil {
+		panic("Failed to connect to database")
+	}
+	fmt.Println("Database connection was established!")
+
+	database.DBConn.AutoMigrate(&book.Book{})
+	fmt.Println("Dababase Migrated!")
+}
+
 func main() {
 	app := fiber.New()
+	initDatabase()
+	defer database.DBConn.Close()
 
 	app.Use(logger.New())
 	app.Use("/ws", func(c *fiber.Ctx) error {
@@ -47,6 +72,8 @@ func main() {
 		}
 		return fiber.ErrUpgradeRequired
 	})
+
+	setupRoutes(app)
 
 	app.Get("/", helloWorld)
 	app.Get("/user", getUser)
